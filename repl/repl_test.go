@@ -22,7 +22,7 @@ func TestCleanInput(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		actual := cleanInput(testCase.input)
+		actual := CleanInput(testCase.input)
 		if len(testCase.expected) != len(actual) {
 			t.Errorf("expected %d words, but got %d", len(testCase.expected), len(actual))
 		}
