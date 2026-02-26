@@ -10,11 +10,12 @@ import (
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-
+	cli := repl.CreateRepl()
+	cli.RegisterCommands()
 	for {
 		fmt.Print("pokefx > ")
 		scanner.Scan()
 		userInput := repl.CleanInput(scanner.Text())
-		fmt.Println("Your command was:", userInput[0])
+		cli.ExecuteCommand(userInput[0])
 	}
 }
