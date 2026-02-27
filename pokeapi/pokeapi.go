@@ -8,10 +8,9 @@ import (
 )
 
 type ApiCall struct {
-	baseUrl     string
-	limitQuery  string
-	offsetQuery string
-	resultJson  ApiResponse
+	url          string
+	nextPage     string
+	previousPage string
 }
 
 type ApiResponse struct {
@@ -26,45 +25,42 @@ type Results struct {
 	Url  string `json:"url"`
 }
 
-func CreateApiCall(baseurl, limit, offset string) ApiCall {
-	return ApiCall{baseurl, limit, offset, ApiResponse{}}
+func CreateApiCall(baseurl string) ApiCall {
+	return ApiCall{baseurl, "", ""}
 }
 
-func (a *ApiCall) RequestNames() ([]string, error) {
-	res, err := http.Get(a.createFullUrl())
+func (a *ApiCall) SendRequest() (ApiResponse, error) {
+	res, err := http.Get(a.url)
 	if err != nil {
-		return nil, fmt.Errorf("Network error: %w", err)
+		return ApiResponse{}, fmt.Errorf("Network error: %w", err)
 	}
 	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 	if res.StatusCode > 299 {
-		return nil, fmt.Errorf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
+		return ApiResponse{}, fmt.Errorf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("IO error: %w", err)
+		return ApiResponse{}, fmt.Errorf("IO error: %w", err)
 	}
-	err = a.convertResponseToJson(body)
+	responseJson, err := convertResponseToJson(body)
 	if err != nil {
-		return nil, err
+		return ApiResponse{}, err
 	}
-	return a.extractNames(), nil
+	return responseJson, nil
 }
 
-func (a *ApiCall) createFullUrl() string {
-	return a.baseUrl + "?" + a.limitQuery + "&" + a.offsetQuery
-}
-
-func (a *ApiCall) convertResponseToJson(response []byte) error {
-	err := json.Unmarshal(response, &a.resultJson)
+func convertResponseToJson(response []byte) (ApiResponse, error) {
+	resultJson := ApiResponse{}
+	err := json.Unmarshal(response, &resultJson)
 	if err != nil {
-		return fmt.Errorf("JSON conversion error: %w", err)
+		return ApiResponse{}, fmt.Errorf("JSON conversion error: %w", err)
 	}
-	return nil
+	return resultJson, nil
 }
 
-func (a *ApiCall) extractNames() []string {
+func (a *ApiResponse) ExtractNames() []string {
 	var names []string
-	for _, result := range a.resultJson.Results {
+	for _, result := range a.Results {
 		names = append(names, result.Name)
 	}
 	return names

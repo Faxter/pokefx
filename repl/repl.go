@@ -15,15 +15,22 @@ func CleanInput(text string) []string {
 func CreateRepl() *Repl {
 	return &Repl{
 		commands: make(map[string]cliCommand),
+		config:   Config{NextPage: "", PreviousPage: ""},
 	}
 }
 
 type Repl struct {
 	commands map[string]cliCommand
+	config   Config
 }
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*Config) error
+}
+
+type Config struct {
+	NextPage     string
+	PreviousPage string
 }

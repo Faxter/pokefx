@@ -4,7 +4,7 @@ import "testing"
 
 var callbackCalled = false
 
-func mockCallback() error {
+func mockCallback(cfg *Config) error {
 	callbackCalled = true
 	return nil
 }
