@@ -11,6 +11,7 @@ func (r *Repl) RegisterCommands() {
 	r.registerCommand("exit", "Exit the program", r.commandExit)
 	r.registerCommand("help", "Display usage information", r.commandHelp)
 	r.registerCommand("map", "List sections of areas, such as floors in a building or cave - use again to get next page of areas", r.commandMap)
+	r.registerCommand("mapb", "List previous page of areas", r.commandMapBack)
 }
 
 func (r *Repl) registerCommand(name, description string, callback func(*Config) error) {
@@ -42,6 +43,25 @@ func (r *Repl) commandMap(cfg *Config) error {
 		call = pokeapi.CreateApiCall(cfg.NextPage)
 	} else {
 		call = pokeapi.CreateApiCall("https://pokeapi.co/api/v2/location-area/")
+	}
+	response, err := call.SendRequest()
+	if err != nil {
+		return err
+	}
+	for _, name := range response.ExtractNames() {
+		fmt.Println(name)
+	}
+	cfg.NextPage = response.Next
+	cfg.PreviousPage = response.Previous
+	return nil
+}
+
+func (r *Repl) commandMapBack(cfg *Config) error {
+	var call pokeapi.ApiCall
+	if cfg.PreviousPage != "" {
+		call = pokeapi.CreateApiCall(cfg.PreviousPage)
+	} else {
+		return fmt.Errorf("you're on the first page")
 	}
 	response, err := call.SendRequest()
 	if err != nil {
