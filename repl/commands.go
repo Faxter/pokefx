@@ -3,11 +3,14 @@ package repl
 import (
 	"fmt"
 	"os"
+
+	"github.com/faxter/pokefx/pokeapi"
 )
 
 func (r *Repl) RegisterCommands() {
 	r.registerCommand("exit", "Exit the program", r.commandExit)
 	r.registerCommand("help", "Display usage information", r.commandHelp)
+	r.registerCommand("map", "List sections of areas, such as floors in a building or cave - use again to get next page of areas", r.commandMap)
 }
 
 func (r *Repl) registerCommand(name, description string, callback func() error) {
@@ -29,6 +32,18 @@ func (r *Repl) commandHelp() error {
 	fmt.Println("Usage:")
 	for name, cmd := range r.commands {
 		fmt.Printf("\t%s:\t%s\n", name, cmd.description)
+	}
+	return nil
+}
+
+func (r *Repl) commandMap() error {
+	call := pokeapi.CreateApiCall("https://pokeapi.co/api/v2/location-area/", "limit=20", "offset=0")
+	names, err := call.RequestNames()
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		fmt.Println(name)
 	}
 	return nil
 }
