@@ -11,7 +11,7 @@ import (
 func (r *Repl) RegisterCommands() {
 	r.registerCommand("exit", "Exit the program", r.commandExit)
 	r.registerCommand("help", "Display usage information", r.commandHelp)
-	r.registerCommand("map", "List sections of areas, such as floors in a building or cave - use again to get next page of areas", r.commandMap)
+	r.registerCommand("map", "List sections of areas, use again to get next page of areas - add map name to get encounters", r.commandMap)
 	r.registerCommand("mapb", "List previous page of areas", r.commandMapBack)
 }
 

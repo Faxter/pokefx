@@ -25,7 +25,7 @@ func (a *ApiCall) SendRequest() ([]byte, error) {
 	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 	if res.StatusCode > 299 {
-		return nil, fmt.Errorf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
+		return nil, fmt.Errorf("Response failed with status code: %d and body: %s", res.StatusCode, body)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("IO error: %w", err)

@@ -37,6 +37,7 @@ func (r *Repl) commandMap(cfg *Config, param string) error {
 }
 
 func (r *Repl) exploreSpecificMap(mapname string) error {
+	fmt.Printf("Exploring %s...\n", mapname)
 	url := API_MAP_BASE + mapname
 	data, err := r.fetchRawData(url)
 	if err != nil {
@@ -46,8 +47,9 @@ func (r *Repl) exploreSpecificMap(mapname string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("Found Pokemon:")
 	for _, pokemon := range response.ExtractPokemonEncounters() {
-		fmt.Println(pokemon)
+		fmt.Printf(" - %s\n", pokemon)
 	}
 	return nil
 }
