@@ -1,6 +1,7 @@
 package repl
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -51,7 +52,11 @@ func (r *Repl) commandMap(cfg *Config, param string) error {
 	} else {
 		url = API_MAP_BASE + "?offset=0&limit=20"
 	}
-	response, err := r.retrieveMapListResponse(url)
+	data, err := r.fetchRawData(url)
+	if err != nil {
+		return err
+	}
+	response, err := decode[pokeapi.MapListResponse](data)
 	if err != nil {
 		return err
 	}
@@ -65,7 +70,11 @@ func (r *Repl) commandMap(cfg *Config, param string) error {
 
 func (r *Repl) exploreSpecificMap(mapname string) error {
 	url := API_MAP_BASE + mapname
-	response, err := r.retrieveSpecificMapResponse(url)
+	data, err := r.fetchRawData(url)
+	if err != nil {
+		return err
+	}
+	response, err := decode[pokeapi.SpecificMapResponse](data)
 	if err != nil {
 		return err
 	}
@@ -75,40 +84,23 @@ func (r *Repl) exploreSpecificMap(mapname string) error {
 	return nil
 }
 
-func (r *Repl) retrieveSpecificMapResponse(url string) (pokeapi.SpecificMapResponse, error) {
-	var responseData []byte
-	var err error
-	cachedValue, foundInCache := r.cache.Get(url)
-	if foundInCache {
-		responseData = cachedValue
-	} else {
-		call := pokeapi.CreateApiCall(url)
-		responseData, err = call.SendRequest()
-		if err != nil {
-			return pokeapi.SpecificMapResponse{}, err
-		}
-		r.cache.Add(url, responseData)
+func (r *Repl) fetchRawData(url string) ([]byte, error) {
+	if cachedValue, found := r.cache.Get(url); found {
+		return cachedValue, nil
 	}
-
-	return pokeapi.ConvertResponseToJson[pokeapi.SpecificMapResponse](responseData)
+	call := pokeapi.CreateApiCall(url)
+	responseData, err := call.SendRequest()
+	if err != nil {
+		return nil, err
+	}
+	r.cache.Add(url, responseData)
+	return responseData, nil
 }
 
-func (r *Repl) retrieveMapListResponse(url string) (pokeapi.MapListResponse, error) {
-	var responseData []byte
-	var err error
-	cachedValue, foundInCache := r.cache.Get(url)
-	if foundInCache {
-		responseData = cachedValue
-	} else {
-		call := pokeapi.CreateApiCall(url)
-		responseData, err = call.SendRequest()
-		if err != nil {
-			return pokeapi.MapListResponse{}, err
-		}
-		r.cache.Add(url, responseData)
-	}
-
-	return pokeapi.ConvertResponseToJson[pokeapi.MapListResponse](responseData)
+func decode[T any](raw []byte) (T, error) {
+	var jsonData T
+	err := json.Unmarshal(raw, &jsonData)
+	return jsonData, err
 }
 
 func (r *Repl) commandMapBack(cfg *Config, _ string) error {
@@ -118,7 +110,11 @@ func (r *Repl) commandMapBack(cfg *Config, _ string) error {
 	} else {
 		return fmt.Errorf("you're on the first page")
 	}
-	response, err := r.retrieveMapListResponse(url)
+	data, err := r.fetchRawData(url)
+	if err != nil {
+		return err
+	}
+	response, err := decode[pokeapi.MapListResponse](data)
 	if err != nil {
 		return err
 	}
