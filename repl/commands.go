@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/faxter/pokefx/pokeapi"
+	"github.com/faxter/pokefx/internal/pokeapi"
 )
 
 func (r *Repl) RegisterCommands() {
@@ -38,16 +38,28 @@ func (r *Repl) commandHelp(cfg *Config) error {
 }
 
 func (r *Repl) commandMap(cfg *Config) error {
-	var call pokeapi.ApiCall
+	var url string
 	if cfg.NextPage != "" {
-		call = pokeapi.CreateApiCall(cfg.NextPage)
+		url = cfg.NextPage
 	} else {
-		call = pokeapi.CreateApiCall("https://pokeapi.co/api/v2/location-area/")
+		url = "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20"
 	}
-	response, err := call.SendRequest()
-	if err != nil {
-		return err
+
+	var responseData []byte
+	var err error
+	cachedValue, foundInCache := r.cache.Get(url)
+	if foundInCache {
+		responseData = cachedValue
+	} else {
+		call := pokeapi.CreateApiCall(url)
+		responseData, err = call.SendRequest()
+		if err != nil {
+			return err
+		}
+		r.cache.Add(url, responseData)
 	}
+
+	response := pokeapi.ConvertResponseToJson(responseData)
 	for _, name := range response.ExtractNames() {
 		fmt.Println(name)
 	}
@@ -57,16 +69,25 @@ func (r *Repl) commandMap(cfg *Config) error {
 }
 
 func (r *Repl) commandMapBack(cfg *Config) error {
-	var call pokeapi.ApiCall
+	var url string
 	if cfg.PreviousPage != "" {
-		call = pokeapi.CreateApiCall(cfg.PreviousPage)
+		url = cfg.PreviousPage
 	} else {
 		return fmt.Errorf("you're on the first page")
 	}
-	response, err := call.SendRequest()
-	if err != nil {
-		return err
+	cachedValue, foundInCache := r.cache.Get(url)
+	var responseData []byte
+	if foundInCache {
+		responseData = cachedValue
+	} else {
+		call := pokeapi.CreateApiCall(url)
+		responseData, err := call.SendRequest()
+		if err != nil {
+			return err
+		}
+		r.cache.Add(url, responseData)
 	}
+	response := pokeapi.ConvertResponseToJson(responseData)
 	for _, name := range response.ExtractNames() {
 		fmt.Println(name)
 	}

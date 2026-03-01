@@ -29,33 +29,30 @@ func CreateApiCall(baseurl string) ApiCall {
 	return ApiCall{baseurl, "", ""}
 }
 
-func (a *ApiCall) SendRequest() (ApiResponse, error) {
+func (a *ApiCall) SendRequest() ([]byte, error) {
 	res, err := http.Get(a.url)
 	if err != nil {
-		return ApiResponse{}, fmt.Errorf("Network error: %w", err)
+		return nil, fmt.Errorf("Network error: %w", err)
 	}
 	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 	if res.StatusCode > 299 {
-		return ApiResponse{}, fmt.Errorf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
+		return nil, fmt.Errorf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
 	}
 	if err != nil {
-		return ApiResponse{}, fmt.Errorf("IO error: %w", err)
+		return nil, fmt.Errorf("IO error: %w", err)
 	}
-	responseJson, err := convertResponseToJson(body)
-	if err != nil {
-		return ApiResponse{}, err
-	}
-	return responseJson, nil
+	return body, nil
 }
 
-func convertResponseToJson(response []byte) (ApiResponse, error) {
+func ConvertResponseToJson(response []byte) ApiResponse {
 	resultJson := ApiResponse{}
 	err := json.Unmarshal(response, &resultJson)
 	if err != nil {
-		return ApiResponse{}, fmt.Errorf("JSON conversion error: %w", err)
+		fmt.Println("JSON conversion error: %w", err)
+		return ApiResponse{}
 	}
-	return resultJson, nil
+	return resultJson
 }
 
 func (a *ApiResponse) ExtractNames() []string {
