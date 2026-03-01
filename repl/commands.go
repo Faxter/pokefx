@@ -14,7 +14,7 @@ func (r *Repl) RegisterCommands() {
 	r.registerCommand("mapb", "List previous page of areas", r.commandMapBack)
 }
 
-func (r *Repl) registerCommand(name, description string, callback func(*Config) error) {
+func (r *Repl) registerCommand(name, description string, callback func(*Config, string) error) {
 	r.commands[name] = cliCommand{
 		name:        name,
 		description: description,
@@ -22,13 +22,13 @@ func (r *Repl) registerCommand(name, description string, callback func(*Config) 
 	}
 }
 
-func (r *Repl) commandExit(cfg *Config) error {
+func (r *Repl) commandExit(cfg *Config, param string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func (r *Repl) commandHelp(cfg *Config) error {
+func (r *Repl) commandHelp(cfg *Config, param string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	for name, cmd := range r.commands {
@@ -37,7 +37,7 @@ func (r *Repl) commandHelp(cfg *Config) error {
 	return nil
 }
 
-func (r *Repl) commandMap(cfg *Config) error {
+func (r *Repl) commandMap(cfg *Config, param string) error {
 	var url string
 	if cfg.NextPage != "" {
 		url = cfg.NextPage
@@ -74,7 +74,7 @@ func (r *Repl) retrieveApiResponse(url string) (pokeapi.ApiResponse, error) {
 	return pokeapi.ConvertResponseToJson(responseData), nil
 }
 
-func (r *Repl) commandMapBack(cfg *Config) error {
+func (r *Repl) commandMapBack(cfg *Config, param string) error {
 	var url string
 	if cfg.PreviousPage != "" {
 		url = cfg.PreviousPage
@@ -93,12 +93,12 @@ func (r *Repl) commandMapBack(cfg *Config) error {
 	return nil
 }
 
-func (r *Repl) ExecuteCommand(command string) {
+func (r *Repl) ExecuteCommand(command string, param string) {
 	cmd, ok := r.commands[command]
 	if !ok {
 		fmt.Println("unknown command")
 	} else {
-		err := cmd.callback(&r.config)
+		err := cmd.callback(&r.config, param)
 		if err != nil {
 			fmt.Println("error: ", err)
 		}

@@ -16,6 +16,10 @@ func main() {
 		fmt.Print("pokefx > ")
 		scanner.Scan()
 		userInput := repl.CleanInput(scanner.Text())
-		cli.ExecuteCommand(userInput[0])
+		parameter := ""
+		if len(userInput) > 1 {
+			parameter = userInput[1]
+		}
+		cli.ExecuteCommand(userInput[0], parameter)
 	}
 }
