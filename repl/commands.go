@@ -44,7 +44,19 @@ func (r *Repl) commandMap(cfg *Config) error {
 	} else {
 		url = "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20"
 	}
+	response, err := r.retrieveApiResponse(url)
+	if err != nil {
+		return err
+	}
+	for _, name := range response.ExtractNames() {
+		fmt.Println(name)
+	}
+	cfg.NextPage = response.Next
+	cfg.PreviousPage = response.Previous
+	return nil
+}
 
+func (r *Repl) retrieveApiResponse(url string) (pokeapi.ApiResponse, error) {
 	var responseData []byte
 	var err error
 	cachedValue, foundInCache := r.cache.Get(url)
@@ -54,18 +66,12 @@ func (r *Repl) commandMap(cfg *Config) error {
 		call := pokeapi.CreateApiCall(url)
 		responseData, err = call.SendRequest()
 		if err != nil {
-			return err
+			return pokeapi.ApiResponse{}, err
 		}
 		r.cache.Add(url, responseData)
 	}
 
-	response := pokeapi.ConvertResponseToJson(responseData)
-	for _, name := range response.ExtractNames() {
-		fmt.Println(name)
-	}
-	cfg.NextPage = response.Next
-	cfg.PreviousPage = response.Previous
-	return nil
+	return pokeapi.ConvertResponseToJson(responseData), nil
 }
 
 func (r *Repl) commandMapBack(cfg *Config) error {
@@ -75,19 +81,10 @@ func (r *Repl) commandMapBack(cfg *Config) error {
 	} else {
 		return fmt.Errorf("you're on the first page")
 	}
-	cachedValue, foundInCache := r.cache.Get(url)
-	var responseData []byte
-	if foundInCache {
-		responseData = cachedValue
-	} else {
-		call := pokeapi.CreateApiCall(url)
-		responseData, err := call.SendRequest()
-		if err != nil {
-			return err
-		}
-		r.cache.Add(url, responseData)
+	response, err := r.retrieveApiResponse(url)
+	if err != nil {
+		return err
 	}
-	response := pokeapi.ConvertResponseToJson(responseData)
 	for _, name := range response.ExtractNames() {
 		fmt.Println(name)
 	}
