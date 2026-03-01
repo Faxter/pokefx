@@ -19,7 +19,7 @@ func CreateRepl() *Repl {
 	return &Repl{
 		commands: make(map[string]cliCommand),
 		config:   Config{NextPage: "", PreviousPage: ""},
-		cache:    *pokecache.NewCache(5 * time.Second),
+		cache:    *pokecache.NewCache(60 * time.Second),
 	}
 }
 
