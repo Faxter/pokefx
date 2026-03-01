@@ -90,7 +90,7 @@ func (r *Repl) retrieveSpecificMapResponse(url string) (pokeapi.SpecificMapRespo
 		r.cache.Add(url, responseData)
 	}
 
-	return pokeapi.ConvertSpecificMapResponseToJson(responseData), nil
+	return pokeapi.ConvertResponseToJson[pokeapi.SpecificMapResponse](responseData)
 }
 
 func (r *Repl) retrieveMapListResponse(url string) (pokeapi.MapListResponse, error) {
@@ -108,7 +108,7 @@ func (r *Repl) retrieveMapListResponse(url string) (pokeapi.MapListResponse, err
 		r.cache.Add(url, responseData)
 	}
 
-	return pokeapi.ConvertMapListResponseToJson(responseData), nil
+	return pokeapi.ConvertResponseToJson[pokeapi.MapListResponse](responseData)
 }
 
 func (r *Repl) commandMapBack(cfg *Config, _ string) error {

@@ -33,24 +33,14 @@ func (a *ApiCall) SendRequest() ([]byte, error) {
 	return body, nil
 }
 
-func ConvertMapListResponseToJson(response []byte) MapListResponse {
-	resultJson := MapListResponse{}
+func ConvertResponseToJson[T any](response []byte) (T, error) {
+	var resultJson T
 	err := json.Unmarshal(response, &resultJson)
 	if err != nil {
 		fmt.Println("JSON conversion error: %w", err)
-		return MapListResponse{}
+		return resultJson, fmt.Errorf("JSON conversion error: %w", err)
 	}
-	return resultJson
-}
-
-func ConvertSpecificMapResponseToJson(response []byte) SpecificMapResponse {
-	resultJson := SpecificMapResponse{}
-	err := json.Unmarshal(response, &resultJson)
-	if err != nil {
-		fmt.Println("JSON conversion error: %w", err)
-		return SpecificMapResponse{}
-	}
-	return resultJson
+	return resultJson, nil
 }
 
 func (m *MapListResponse) ExtractMapNames() []string {
