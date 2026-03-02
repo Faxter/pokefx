@@ -3,7 +3,6 @@ package repl
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/faxter/pokefx/internal/pokeapi"
 )
@@ -34,21 +33,6 @@ func (r *Repl) ExecuteCommand(command string, param string) {
 			fmt.Println("error: ", err)
 		}
 	}
-}
-
-func (r *Repl) commandExit(cfg *Config, _ string) error {
-	fmt.Println("Closing the Pokedex... Goodbye!")
-	os.Exit(0)
-	return nil
-}
-
-func (r *Repl) commandHelp(cfg *Config, _ string) error {
-	fmt.Println("Welcome to the Pokedex!")
-	fmt.Println("Usage:")
-	for name, cmd := range r.commands {
-		fmt.Printf("\t%s:\t%s\n", name, cmd.description)
-	}
-	return nil
 }
 
 func (r *Repl) fetchRawData(url string) ([]byte, error) {
