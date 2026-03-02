@@ -13,6 +13,7 @@ func (r *Repl) RegisterCommands() {
 	r.registerCommand("help", "Display usage information", r.commandHelp)
 	r.registerCommand("map", "List sections of areas, use again to get next page of areas - add map name to get encounters", r.commandMap)
 	r.registerCommand("mapb", "List previous page of areas", r.commandMapBack)
+	r.registerCommand("explore", "List pokemon that can be encountered in given area", r.commandExplore)
 }
 
 func (r *Repl) registerCommand(name, description string, callback func(*Config, string) error) {
