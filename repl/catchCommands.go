@@ -43,3 +43,22 @@ func tryToCatch(baseValue int) bool {
 	x := rand.Intn(baseValue)
 	return x <= 50
 }
+
+func (r *Repl) commandInspect(_ *Config, pokemonName string) error {
+	if !r.pokedex.Check(pokemonName) {
+		return fmt.Errorf("you have not caught %s yet!", pokemonName)
+	}
+	poke := r.pokedex.Index[pokemonName]
+	fmt.Println("Name:", poke.Name)
+	fmt.Println("Height:", poke.Height)
+	fmt.Println("Weigth:", poke.Weight)
+	fmt.Println("Types:")
+	for _, typeEntry := range poke.Types {
+		fmt.Println("\t-", typeEntry.Type.Name)
+	}
+	fmt.Println("Abilities:")
+	for _, ability := range poke.Abilities {
+		fmt.Println("\t-", ability.Ability.Name)
+	}
+	return nil
+}
