@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/faxter/pokefx/internal/pokecache"
+	"github.com/faxter/pokefx/internal/pokedex"
 )
 
 func CleanInput(text string) []string {
@@ -20,6 +21,7 @@ func CreateRepl() *Repl {
 		commands: make(map[string]cliCommand),
 		config:   Config{NextPage: "", PreviousPage: ""},
 		cache:    *pokecache.NewCache(60 * time.Second),
+		pokedex:  pokedex.CreatePokedex(),
 	}
 }
 
@@ -27,6 +29,7 @@ type Repl struct {
 	commands map[string]cliCommand
 	config   Config
 	cache    pokecache.Cache
+	pokedex  pokedex.Pokedex
 }
 
 type cliCommand struct {
