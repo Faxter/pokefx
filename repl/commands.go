@@ -1,10 +1,7 @@
 package repl
 
 import (
-	"encoding/json"
 	"fmt"
-
-	"github.com/faxter/pokefx/internal/pokeapi"
 )
 
 func (r *Repl) RegisterCommands() {
@@ -35,23 +32,4 @@ func (r *Repl) ExecuteCommand(command string, param string) {
 			fmt.Println("error: ", err)
 		}
 	}
-}
-
-func (r *Repl) fetchRawData(url string) ([]byte, error) {
-	if cachedValue, found := r.cache.Get(url); found {
-		return cachedValue, nil
-	}
-	call := pokeapi.CreateApiCall(url)
-	responseData, err := call.SendRequest()
-	if err != nil {
-		return nil, err
-	}
-	r.cache.Add(url, responseData)
-	return responseData, nil
-}
-
-func decode[T any](raw []byte) (T, error) {
-	var jsonData T
-	err := json.Unmarshal(raw, &jsonData)
-	return jsonData, err
 }
