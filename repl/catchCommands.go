@@ -54,11 +54,11 @@ func (r *Repl) commandInspect(_ *Config, pokemonName string) error {
 	fmt.Println("Weigth:", poke.Weight)
 	fmt.Println("Types:")
 	for _, typeEntry := range poke.Types {
-		fmt.Println("\t-", typeEntry.Type.Name)
+		fmt.Println("  -", typeEntry.Type.Name)
 	}
 	fmt.Println("Abilities:")
-	for _, ability := range poke.Abilities {
-		fmt.Println("\t-", ability.Ability.Name)
+	for _, move := range poke.Moves {
+		fmt.Println("  -", move.Move.Name)
 	}
 	return nil
 }
