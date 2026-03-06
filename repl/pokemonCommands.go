@@ -62,3 +62,16 @@ func (r *Repl) commandInspect(_ *Config, pokemonName string) error {
 	}
 	return nil
 }
+
+func (r *Repl) commandPokedex(_ *Config, _ string) error {
+	pokedex := r.pokedex.Index
+	if len(pokedex) == 0 {
+		fmt.Println("You haven't caught any pokemon yet!")
+		return nil
+	}
+	fmt.Println("Your pokedex:")
+	for pokeName, _ := range pokedex {
+		fmt.Println("  -", pokeName)
+	}
+	return nil
+}
