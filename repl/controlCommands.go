@@ -14,8 +14,14 @@ func (r *Repl) commandExit(_ *Config, _ string) error {
 func (r *Repl) commandHelp(_ *Config, _ string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
+	maxCommandLength := 0
+	for command, _ := range r.commands {
+		if len(command) > maxCommandLength {
+			maxCommandLength = len(command)
+		}
+	}
 	for name, cmd := range r.commands {
-		fmt.Printf("\t%s:\t%s\n", name, cmd.description)
+		fmt.Printf("\t%-*s%s\n", maxCommandLength+2, name, cmd.description)
 	}
 	return nil
 }
